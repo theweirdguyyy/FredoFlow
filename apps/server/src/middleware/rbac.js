@@ -8,7 +8,7 @@ import prisma from '../config/db.js';
  *
  * @param  {...string} allowedRoles - Roles that are permitted (e.g. 'ADMIN')
  */
-export function authorize(...allowedRoles) {
+export function requireRole(...allowedRoles) {
   return async (req, _res, next) => {
     try {
       const { workspaceId } = req.params;
