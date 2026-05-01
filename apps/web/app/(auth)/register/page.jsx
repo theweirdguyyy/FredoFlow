@@ -26,7 +26,6 @@ export default function RegisterPage() {
   const router = useRouter();
   const setUser = useAuthStore((state) => state.setUser);
 
-  // Local validation logic
   const validate = () => {
     const newErrors = {};
     if (!formData.name) newErrors.name = 'Name is required';
@@ -53,17 +52,11 @@ export default function RegisterPage() {
       });
 
       toast.success('Account created successfully!');
-      
-      // Update global auth state
       setUser(res.data.data.user);
-      
-      // Navigate to workspaces list
       router.push('/workspaces');
     } catch (err) {
       const message = err.response?.data?.message || 'Registration failed';
       toast.error(message);
-      
-      // Handle server-side field validation errors
       if (err.response?.data?.errors) {
         setErrors(err.response.data.errors);
       }
@@ -73,84 +66,98 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="text-center sm:text-left">
-        <h2 className="text-3xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
-          Create your account
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 py-4">
+      <div>
+        <h2 className="text-[28px] font-extrabold text-[#0f0f14] leading-tight tracking-tight">
+          Join FredoFlow
         </h2>
-        <p className="mt-2 text-zinc-500 dark:text-zinc-400 font-medium">
-          Join the future of team collaboration with FredoFlow.
+        <p className="mt-1 text-sm text-zinc-500 font-medium">
+          Start collaborating with your team today.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          label="Full Name"
-          placeholder="e.g. John Doe"
-          leftIcon={User}
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          error={errors.name}
-          disabled={loading}
-        />
-        <Input
-          label="Email Address"
-          type="email"
-          placeholder="name@company.com"
-          leftIcon={Mail}
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          error={errors.email}
-          disabled={loading}
-        />
-        <Input
-          label="Password"
-          type="password"
-          placeholder="Min. 8 characters"
-          leftIcon={Lock}
-          value={formData.password}
-          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-          error={errors.password}
-          disabled={loading}
-        />
-        <Input
-          label="Confirm Password"
-          type="password"
-          placeholder="Repeat your password"
-          leftIcon={CheckCircle2}
-          value={formData.confirmPassword}
-          onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-          error={errors.confirmPassword}
-          disabled={loading}
-        />
+        <div className="grid grid-cols-1 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+              Full Name
+            </label>
+            <Input
+              placeholder="e.g. John Doe"
+              rightIcon={User}
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              error={errors.name}
+              disabled={loading}
+              className="bg-zinc-50 border-zinc-100 focus:bg-white h-11 rounded-lg text-zinc-900 placeholder:text-zinc-300"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+              Email
+            </label>
+            <Input
+              type="email"
+              placeholder="name@company.com"
+              rightIcon={Mail}
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              error={errors.email}
+              disabled={loading}
+              className="bg-zinc-50 border-zinc-100 focus:bg-white h-11 rounded-lg text-zinc-900 placeholder:text-zinc-300"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                Password
+              </label>
+              <Input
+                type="password"
+                placeholder="••••••••"
+                rightIcon={Lock}
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                error={errors.password}
+                disabled={loading}
+                className="bg-zinc-50 border-zinc-100 focus:bg-white h-11 rounded-lg text-zinc-900 placeholder:text-zinc-300"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                Confirm
+              </label>
+              <Input
+                type="password"
+                placeholder="••••••••"
+                rightIcon={CheckCircle2}
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                error={errors.confirmPassword}
+                disabled={loading}
+                className="bg-zinc-50 border-zinc-100 focus:bg-white h-11 rounded-lg text-zinc-900 placeholder:text-zinc-300"
+              />
+            </div>
+          </div>
+        </div>
 
         <Button 
           type="submit" 
           fullWidth 
           loading={loading}
-          size="lg"
-          className="mt-6 shadow-xl shadow-accent/20"
+          className="h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/20 transition-all mt-2"
         >
           Create Account
         </Button>
       </form>
 
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-zinc-100 dark:border-zinc-800" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white dark:bg-zinc-950 px-2 text-zinc-500 font-bold tracking-widest">
-            Welcome Back?
-          </span>
-        </div>
-      </div>
-
-      <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
-        Already have an account?{' '}
+      <p className="text-center text-sm text-zinc-500 font-medium">
+        Already on FredoFlow?{' '}
         <Link 
           href="/login" 
-          className="font-bold text-accent hover:text-accent-hover transition-colors underline-offset-4 hover:underline"
+          className="font-bold text-indigo-600 hover:text-indigo-700 transition-colors"
         >
           Sign In
         </Link>
@@ -158,3 +165,4 @@ export default function RegisterPage() {
     </div>
   );
 }
+
