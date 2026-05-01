@@ -12,6 +12,7 @@ import goalRoutes from './modules/goals/goal.routes.js';
 import milestoneRoutes from './modules/milestones/milestone.routes.js';
 import announcementRoutes from './modules/announcements/announcement.routes.js';
 import actionItemRoutes from './modules/action-items/action-item.routes.js';
+import notificationRoutes from './modules/notifications/notification.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -41,6 +42,7 @@ app.use('/api/v1/workspaces/:workspaceId/goals', goalRoutes);
 app.use('/api/v1/workspaces/:workspaceId/goals/:goalId/milestones', milestoneRoutes);
 app.use('/api/v1/workspaces/:workspaceId/announcements', announcementRoutes);
 app.use('/api/v1/workspaces/:workspaceId/action-items', actionItemRoutes);
+app.use('/api/v1/notifications', notificationRoutes);
 
 // ─── 404 Handler ─────────────────────────────────────────────
 app.use((_req, res) => {
