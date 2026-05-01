@@ -10,6 +10,7 @@ import authRoutes from './modules/auth/auth.routes.js';
 import workspaceRoutes from './modules/workspaces/workspace.routes.js';
 import goalRoutes from './modules/goals/goal.routes.js';
 import milestoneRoutes from './modules/milestones/milestone.routes.js';
+import announcementRoutes from './modules/announcements/announcement.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -37,6 +38,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/workspaces', workspaceRoutes);
 app.use('/api/v1/workspaces/:workspaceId/goals', goalRoutes);
 app.use('/api/v1/workspaces/:workspaceId/goals/:goalId/milestones', milestoneRoutes);
+app.use('/api/v1/workspaces/:workspaceId/announcements', announcementRoutes);
 
 // ─── 404 Handler ─────────────────────────────────────────────
 app.use((_req, res) => {
