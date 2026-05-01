@@ -8,6 +8,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { initializeSocket } from './config/socket.js';
 import authRoutes from './modules/auth/auth.routes.js';
 import workspaceRoutes from './modules/workspaces/workspace.routes.js';
+import goalRoutes from './modules/goals/goal.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -33,6 +34,7 @@ app.get('/api/health', (_req, res) => {
 // ─── API Routes ──────────────────────────────────────────────
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/workspaces', workspaceRoutes);
+app.use('/api/v1/workspaces/:workspaceId/goals', goalRoutes);
 
 // ─── 404 Handler ─────────────────────────────────────────────
 app.use((_req, res) => {
