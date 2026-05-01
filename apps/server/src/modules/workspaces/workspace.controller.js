@@ -1,4 +1,5 @@
 import * as workspaceService from './workspace.service.js';
+import { logAction } from '../audit/audit-log.service.js';
 
 /**
  * POST /api/v1/workspaces
@@ -86,6 +87,8 @@ export async function inviteMember(req, res, next) {
       email,
       role,
     });
+    
+    await logAction(req.params.workspaceId, req.user.id, 'MEMBER_INVITED', { email, role });
 
     res.status(201).json({
       success: true,
@@ -104,6 +107,8 @@ export async function acceptInvite(req, res, next) {
   try {
     const { token } = req.body;
     const member = await workspaceService.acceptInvite(req.user.id, token);
+    
+    await logAction(member.workspaceId, req.user.id, 'INVITE_ACCEPTED', { workspaceId: member.workspaceId });
 
     res.status(200).json({
       success: true,
@@ -121,6 +126,8 @@ export async function acceptInvite(req, res, next) {
 export async function removeMember(req, res, next) {
   try {
     await workspaceService.removeMember(req.params.workspaceId, req.params.userId);
+
+    await logAction(req.params.workspaceId, req.user.id, 'MEMBER_REMOVED', { removedUserId: req.params.userId });
 
     res.status(200).json({
       success: true,

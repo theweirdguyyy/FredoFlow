@@ -1,5 +1,6 @@
 import * as goalService from './goal.service.js';
 import { getIO } from '../../config/socket.js';
+import { logAction } from '../audit/audit-log.service.js';
 
 /**
  * POST /api/v1/workspaces/:workspaceId/goals
@@ -8,6 +9,8 @@ export async function createGoal(req, res, next) {
   try {
     const { workspaceId } = req.params;
     const goal = await goalService.createGoal(workspaceId, req.user.id, req.body);
+    
+    await logAction(workspaceId, req.user.id, 'GOAL_CREATED', { goalId: goal.id, title: goal.title });
 
     res.status(201).json({
       success: true,
@@ -63,6 +66,8 @@ export async function updateGoal(req, res, next) {
     const oldGoal = await goalService.getGoalById(goalId);
     const goal = await goalService.updateGoal(goalId, req.body);
 
+    await logAction(workspaceId, req.user.id, 'GOAL_UPDATED', { goalId, updates: req.body });
+
     // Emit socket event if status changed
     if (status && status !== oldGoal.status) {
       try {
@@ -93,6 +98,8 @@ export async function updateGoal(req, res, next) {
 export async function deleteGoal(req, res, next) {
   try {
     await goalService.deleteGoal(req.params.goalId);
+    
+    await logAction(req.params.workspaceId, req.user.id, 'GOAL_DELETED', { goalId: req.params.goalId });
 
     res.status(200).json({
       success: true,
