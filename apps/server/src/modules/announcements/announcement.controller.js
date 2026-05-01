@@ -1,6 +1,7 @@
 import * as announcementService from './announcement.service.js';
 import * as commentService from './comment.service.js';
 import { getIO } from '../../config/socket.js';
+import { logAction } from '../audit/audit-log.service.js';
 
 /**
  * POST /api/v1/workspaces/:workspaceId/announcements
@@ -9,6 +10,8 @@ export async function createAnnouncement(req, res, next) {
   try {
     const { workspaceId } = req.params;
     const announcement = await announcementService.createAnnouncement(workspaceId, req.user.id, req.body);
+    
+    await logAction(workspaceId, req.user.id, 'ANNOUNCEMENT_CREATED', { announcementId: announcement.id, title: announcement.title });
 
     try {
       const io = getIO();
@@ -85,6 +88,8 @@ export async function updateAnnouncement(req, res, next) {
 export async function deleteAnnouncement(req, res, next) {
   try {
     await announcementService.deleteAnnouncement(req.params.announcementId);
+
+    await logAction(req.params.workspaceId, req.user.id, 'ANNOUNCEMENT_DELETED', { announcementId: req.params.announcementId });
 
     res.status(200).json({
       success: true,

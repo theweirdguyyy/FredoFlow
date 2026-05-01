@@ -1,6 +1,7 @@
 import * as actionItemService from './action-item.service.js';
 import { getIO } from '../../config/socket.js';
 import { AppError } from '../../middleware/errorHandler.js';
+import { logAction } from '../audit/audit-log.service.js';
 
 /**
  * POST /api/v1/workspaces/:workspaceId/action-items
@@ -9,6 +10,8 @@ export async function createActionItem(req, res, next) {
   try {
     const { workspaceId } = req.params;
     const item = await actionItemService.createActionItem(workspaceId, req.user.id, req.body);
+    
+    await logAction(workspaceId, req.user.id, 'ACTION_ITEM_CREATED', { itemId: item.id, title: item.title });
 
     try {
       const io = getIO();
@@ -70,6 +73,8 @@ export async function updateActionItem(req, res, next) {
   try {
     const item = await actionItemService.updateActionItem(req.params.actionItemId, req.body);
 
+    await logAction(req.params.workspaceId, req.user.id, 'ACTION_ITEM_UPDATED', { itemId: req.params.actionItemId, updates: req.body });
+
     res.status(200).json({
       success: true,
       data: { item },
@@ -86,6 +91,8 @@ export async function updateActionItem(req, res, next) {
 export async function deleteActionItem(req, res, next) {
   try {
     await actionItemService.deleteActionItem(req.params.actionItemId);
+
+    await logAction(req.params.workspaceId, req.user.id, 'ACTION_ITEM_DELETED', { itemId: req.params.actionItemId });
 
     res.status(200).json({
       success: true,
@@ -105,6 +112,8 @@ export async function moveActionItem(req, res, next) {
     const { workspaceId, actionItemId } = req.params;
     const { status, position } = req.body;
     const item = await actionItemService.moveActionItem(actionItemId, { status, position });
+
+    await logAction(workspaceId, req.user.id, 'ACTION_ITEM_MOVED', { itemId: actionItemId, status, position });
 
     try {
       const io = getIO();
