@@ -2,37 +2,38 @@ import { twMerge } from 'tailwind-merge';
 
 /**
  * Badge Primitive
- * Compact status indicator with color coding for system states.
+ * Compact indicator with strict color variables and 12% opacity background.
  */
-export default function Badge({ children, variant = 'neutral', className }) {
-  const variants = {
-    // Goal Status
-    NOT_STARTED: 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400',
-    IN_PROGRESS: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
-    COMPLETED: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400',
-    CANCELLED: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400',
-    
-    // Action Item Status
-    TODO: 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400',
-    IN_REVIEW: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
-    DONE: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400',
-    
-    // Priority
-    LOW: 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400',
-    MEDIUM: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-    HIGH: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-    URGENT: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
-
-    neutral: 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400',
+export default function Badge({ children, variant = 'NOT_STARTED', className }) {
+  const getCssVariable = (v) => {
+    switch (v) {
+      case 'IN_PROGRESS': return 'var(--color-status-progress)';
+      case 'COMPLETED': case 'DONE': return 'var(--color-status-completed)';
+      case 'NOT_STARTED': case 'TODO': return 'var(--color-status-not-started)';
+      case 'CANCELLED': return 'var(--color-status-cancelled)';
+      case 'OVERDUE': return 'var(--color-status-overdue)';
+      case 'URGENT': return 'var(--color-priority-urgent)';
+      case 'HIGH': return 'var(--color-priority-high)';
+      case 'MEDIUM': return 'var(--color-priority-medium)';
+      case 'LOW': return 'var(--color-priority-low)';
+      default: return 'var(--color-status-not-started)';
+    }
   };
 
+  const colorVar = getCssVariable(variant);
+
   return (
-    <span className={twMerge(
-      'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider',
-      variants[variant] || variants.neutral,
-      className
-    )}>
-      {children?.replace('_', ' ')}
+    <span 
+      className={twMerge(
+        'inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-bold uppercase tracking-wider',
+        className
+      )}
+      style={{
+        color: colorVar,
+        backgroundColor: `color-mix(in srgb, ${colorVar} 12%, transparent)`
+      }}
+    >
+      {typeof children === 'string' ? children.replace('_', ' ') : children}
     </span>
   );
 }

@@ -1,47 +1,218 @@
+import { Syne } from 'next/font/google';
+
+const syne = Syne({
+  subsets: ['latin'],
+  weight: ['700', '800'],
+  variable: '--font-syne',
+});
+
+export const metadata = {
+  title: 'FredoFlow — Auth',
+};
+
 export default function AuthLayout({ children }) {
   return (
-    <div className="min-h-screen flex">
-      {/* Left Panel: Branding (Hidden on mobile) */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 p-12 text-white flex-col justify-between relative overflow-hidden">
-        {/* Subtle background decoration */}
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl" />
-        
-        <div className="relative z-10">
-          <div className="flex items-center gap-2 text-2xl font-bold tracking-tight">
-            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
-              <span className="text-indigo-600">FF</span>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        minHeight: '100vh',
+        fontFamily: "'DM Sans', sans-serif",
+      }}
+    >
+      {/* ── LEFT PANEL ── */}
+      <div
+        style={{
+          width: '42%',
+          minHeight: '100vh',
+          background: '#0f0f14',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          padding: '40px 40px',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Grid overlay */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage:
+              'linear-gradient(rgba(99,102,241,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.07) 1px, transparent 1px)',
+            backgroundSize: '32px 32px',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
+
+        {/* Glow orb */}
+        <div
+          style={{
+            position: 'absolute',
+            width: '260px',
+            height: '260px',
+            borderRadius: '50%',
+            background: 'rgba(99,102,241,0.13)',
+            filter: 'blur(65px)',
+            top: '38%',
+            left: '8%',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
+
+        {/* Second orb — emerald top-left */}
+        <div
+          style={{
+            position: 'absolute',
+            width: '180px',
+            height: '180px',
+            borderRadius: '50%',
+            background: 'rgba(52,211,153,0.07)',
+            filter: 'blur(55px)',
+            top: '-40px',
+            left: '-40px',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
+
+        {/* ── LOGO ── */}
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div
+              style={{
+                width: '40px',
+                height: '40px',
+                background: '#6366f1',
+                borderRadius: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <svg
+                width="22"
+                height="22"
+                fill="none"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                viewBox="0 0 24 24"
+              >
+                <path d="M12 4L4 8l8 4 8-4-8-4z" />
+                <path d="M4 12l8 4 8-4" />
+                <path d="M4 16l8 4 8-4" />
+              </svg>
             </div>
-            <span>FredoFlow</span>
+            <span
+              style={{
+                fontFamily: "'Syne', sans-serif",
+                fontSize: '20px',
+                fontWeight: 800,
+                color: '#ffffff',
+                letterSpacing: '-0.3px',
+              }}
+            >
+              FredoFlow
+            </span>
           </div>
         </div>
 
-        <div className="relative z-10 mb-12">
-          <h1 className="text-5xl font-extrabold leading-tight mb-6">
-            The future of team <br />
-            <span className="text-indigo-200">collaboration</span> is here.
+        {/* ── HERO TEXT ── */}
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <h1
+            style={{
+              fontFamily: "'Syne', sans-serif",
+              fontSize: '32px',
+              fontWeight: 800,
+              lineHeight: 1.15,
+              color: '#ffffff',
+              margin: '0 0 14px',
+              letterSpacing: '-0.5px',
+            }}
+          >
+            Where teams
+            <br />
+            <span style={{ color: '#818cf8' }}>flow together</span>
           </h1>
-          <p className="text-lg text-indigo-100 max-w-md leading-relaxed">
-            FredoFlow helps high-performance teams align on goals, track milestones, 
-            and celebrate success in a single, premium hub.
+          <p
+            style={{
+              fontSize: '14px',
+              color: 'rgba(255,255,255,0.48)',
+              lineHeight: 1.65,
+              margin: 0,
+            }}
+          >
+            The premium hub for teams to align, track, and succeed in real time.
           </p>
         </div>
 
-        <div className="relative z-10 flex items-center gap-4 text-sm text-indigo-200">
-          <div className="flex -space-x-2">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="w-8 h-8 rounded-full border-2 border-indigo-700 bg-indigo-500 flex items-center justify-center text-[10px] font-bold">
-                {String.fromCharCode(64 + i)}
-              </div>
-            ))}
-          </div>
-          <span>Trusted by 5,000+ teams worldwide</span>
+        {/* ── FEATURE PILLS ── */}
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '9px',
+          }}
+        >
+          {[
+            { dot: '#818cf8', text: 'Real-time workspace collaboration' },
+            { dot: '#34d399', text: 'Kanban boards & goal tracking' },
+            { dot: '#fbbf24', text: 'Live announcements & @mentions' },
+          ].map(({ dot, text }) => (
+            <div
+              key={text}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '10px 14px',
+                background: 'rgba(99,102,241,0.1)',
+                border: '1px solid rgba(99,102,241,0.22)',
+                borderRadius: '8px',
+              }}
+            >
+              <div
+                style={{
+                  width: '7px',
+                  height: '7px',
+                  borderRadius: '50%',
+                  background: dot,
+                  flexShrink: 0,
+                }}
+              />
+              <span
+                style={{
+                  fontSize: '13px',
+                  color: 'rgba(255,255,255,0.65)',
+                }}
+              >
+                {text}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Right Panel: Content */}
-      <div className="flex-1 flex flex-col justify-center items-center p-6 bg-white dark:bg-zinc-950 transition-colors duration-300">
-        <div className="w-full max-w-md">
+      {/* ── RIGHT PANEL ── */}
+      <div
+        style={{
+          flex: 1,
+          minHeight: '100vh',
+          background: '#ffffff',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          padding: '56px 52px',
+        }}
+      >
+        <div style={{ maxWidth: '400px', width: '100%' }}>
           {children}
         </div>
       </div>

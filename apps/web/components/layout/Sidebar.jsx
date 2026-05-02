@@ -30,7 +30,7 @@ const navLinks = [
 
 /**
  * Sidebar Navigation
- * Handles primary app navigation, workspace switching, and user profile management.
+ * Strict 200px width with 48px topbar alignment.
  */
 export default function Sidebar() {
   const pathname = usePathname();
@@ -51,32 +51,33 @@ export default function Sidebar() {
       )}
 
       <aside className={clsx(
-        "fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 transition-transform duration-300 lg:translate-x-0 flex flex-col shadow-xl lg:shadow-none",
+        "fixed inset-y-0 left-0 z-50 w-[200px] bg-[var(--color-background-primary)] border-r-0.5 border-[var(--color-border-tertiary)] transition-transform duration-150 ease lg:translate-x-0 flex flex-col shadow-xl lg:shadow-none",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        {/* Branding Section */}
-        <div className="h-20 px-6 flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800">
-          <Link href="/dashboard" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-white font-bold group-hover:scale-110 transition-transform shadow-lg shadow-accent/20">
+        {/* Branding Section - 48px height to align with topbar */}
+        <div className="h-[48px] px-4 flex items-center justify-between border-b-0.5 border-[var(--color-border-tertiary)]">
+          <Link href="/dashboard" className="flex items-center gap-2 group">
+            <div className="w-6 h-6 bg-accent rounded-[7px] flex items-center justify-center text-white text-xs font-syne group-hover:scale-105 transition-transform">
               FF
             </div>
-            <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">FredoFlow</span>
+            <span className="text-sm font-syne text-[var(--color-text-primary)]">FredoFlow</span>
           </Link>
           <button 
             onClick={toggleSidebar}
-            className="lg:hidden p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full text-zinc-500"
+            className="lg:hidden p-1 hover:bg-[var(--color-background-secondary)] rounded-[7px] text-[var(--color-text-secondary)]"
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft size={16} />
           </button>
         </div>
 
         {/* Workspace Selector */}
-        <div className="px-4 py-6">
+        <div className="px-3 py-4">
           <WorkspaceSwitcher />
         </div>
 
         {/* Navigation Links */}
-        <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
+        <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto custom-scrollbar">
+          <p className="px-2 mb-2 text-[10px] uppercase tracking-[0.8px] text-[var(--color-text-tertiary)] font-bold">Main Menu</p>
           {navLinks.map((link) => {
             const Icon = link.icon;
             const isActive = pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href));
@@ -85,36 +86,47 @@ export default function Sidebar() {
                 key={link.name}
                 href={link.href}
                 className={clsx(
-                  "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-semibold group",
+                  "flex items-center gap-2.5 p-[7px] rounded-nav transition-all duration-150 ease text-sm font-medium group",
                   isActive 
                     ? "text-accent" 
-                    : "text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-white"
+                    : "text-[var(--color-text-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-text-primary)]"
                 )}
-                style={isActive ? { color: accentColor, backgroundColor: `${accentColor}10` } : {}}
+                style={isActive ? { color: accentColor, backgroundColor: `color-mix(in srgb, ${accentColor} 10%, transparent)` } : {}}
               >
-                <Icon size={20} className={clsx("transition-transform group-hover:scale-110", isActive ? "text-accent" : "text-zinc-400")} style={isActive ? { color: accentColor } : {}} />
+                <Icon size={16} className={clsx("transition-transform group-hover:scale-105", isActive ? "" : "opacity-70")} style={isActive ? { color: accentColor } : {}} />
                 {link.name}
               </Link>
             );
           })}
+
+          <p className="px-2 mt-6 mb-2 text-[10px] uppercase tracking-[0.8px] text-[var(--color-text-tertiary)] font-bold">Projects</p>
+          
+          {/* Example of accent dot status label */}
+          <Link href="#" className="flex items-center gap-2.5 p-[7px] rounded-nav text-sm font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-text-primary)] transition-all duration-150 ease">
+            <span className="w-2 h-2 rounded-full bg-[var(--color-priority-high)] shrink-0"></span>
+            <span className="truncate">Alpha Launch</span>
+          </Link>
+          <Link href="#" className="flex items-center gap-2.5 p-[7px] rounded-nav text-sm font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-text-primary)] transition-all duration-150 ease">
+            <span className="w-2 h-2 rounded-full bg-[var(--color-priority-medium)] shrink-0"></span>
+            <span className="truncate">Website Redesign</span>
+          </Link>
         </nav>
 
         {/* User Profile & Actions */}
-        <div className="p-4 mt-auto border-t border-zinc-100 dark:border-zinc-800">
-          <div className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800">
-            <div className="flex items-center gap-3 overflow-hidden">
-              <Avatar name={user?.name} src={user?.avatarUrl} size="md" />
+        <div className="p-3 mt-auto border-t-0.5 border-[var(--color-border-tertiary)]">
+          <div className="flex items-center justify-between gap-2 p-2 rounded-[7px] hover:bg-[var(--color-background-secondary)] transition-all duration-150 ease cursor-pointer">
+            <div className="flex items-center gap-2 overflow-hidden">
+              <Avatar name={user?.name} src={user?.avatarUrl} size="sm" online={true} />
               <div className="truncate">
-                <p className="text-sm font-bold truncate text-zinc-900 dark:text-white">{user?.name}</p>
-                <p className="text-[10px] text-zinc-500 truncate font-medium">{user?.email}</p>
+                <p className="text-xs font-bold truncate text-[var(--color-text-primary)]">{user?.name || 'User'}</p>
               </div>
             </div>
             <button 
               onClick={logout}
-              className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all"
+              className="p-1 text-[var(--color-text-tertiary)] hover:text-red-500 rounded-[7px] transition-colors"
               title="Logout"
             >
-              <LogOut size={20} />
+              <LogOut size={14} />
             </button>
           </div>
         </div>

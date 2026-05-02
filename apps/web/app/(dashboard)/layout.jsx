@@ -51,22 +51,22 @@ export default function DashboardLayout({ children }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-zinc-950">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--color-background-tertiary)]">
         <div className="flex flex-col items-center gap-4">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
-          <p className="text-zinc-500 font-medium animate-pulse">Aligning your workspace...</p>
+          <p className="text-[var(--color-text-secondary)] font-medium animate-pulse">Aligning your workspace...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex transition-colors duration-300">
+    <div className="min-h-screen bg-[var(--color-background-tertiary)] flex transition-colors duration-150 ease">
       {/* Sidebar - Fixed on desktop, overlay on mobile */}
       <Sidebar />
 
       {/* Main Content Area */}
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarOpen ? 'lg:pl-72' : 'pl-0'}`}>
+      <div className={`flex-1 flex flex-col transition-all duration-150 ease ${sidebarOpen ? 'lg:pl-[200px]' : 'pl-0'}`}>
         <Navbar />
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           {children}
