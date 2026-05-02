@@ -3,46 +3,105 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Accent Colors */
   --color-accent: #6366f1;
   --color-accent-hover: #4f46e5;
   
-  --card: #ffffff;
-  --card-foreground: #171717;
-  --border: #e5e7eb;
-  --input: #e5e7eb;
-  --ring: #6366f1;
+  /* Status Colors */
+  --color-status-progress: #6366f1;
+  --color-status-completed: #10b981;
+  --color-status-not-started: #9ca3af;
+  --color-status-cancelled: #ef4444;
+  --color-status-overdue: #ef4444;
+  
+  /* Priority Colors */
+  --color-priority-urgent: #ef4444;
+  --color-priority-high: #f59e0b;
+  --color-priority-medium: #6366f1;
+  --color-priority-low: #9ca3af;
+
+  /* Backgrounds */
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f4f4f5;
+  --color-background-tertiary: #fafafa;
+  
+  /* Text */
+  --color-text-primary: #18181b;
+  --color-text-secondary: #52525b;
+  --color-text-tertiary: #a1a1aa;
+  
+  /* Borders */
+  --color-border-secondary: #d4d4d8;
+  --color-border-tertiary: #e4e4e7;
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  /* Accent Colors */
   --color-accent: #818cf8;
   --color-accent-hover: #6366f1;
   
-  --card: #171717;
-  --card-foreground: #ededed;
-  --border: #262626;
-  --input: #262626;
-  --ring: #818cf8;
+  /* Backgrounds */
+  --color-background-primary: #18181b;
+  --color-background-secondary: #27272a;
+  --color-background-tertiary: #09090b;
+  
+  /* Text */
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #a1a1aa;
+  --color-text-tertiary: #71717a;
+  
+  /* Borders */
+  --color-border-secondary: #3f3f46;
+  --color-border-tertiary: #27272a;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: var(--color-text-primary);
+  background: var(--color-background-tertiary);
   font-family: 'DM Sans', sans-serif;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6, .font-syne {
   font-family: 'Syne', sans-serif;
 }
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: var(--color-border-tertiary);
   }
-  body {
-    @apply bg-background text-foreground;
+}
+
+/* Custom Utilities */
+@layer utilities {
+  .border-0\.5 {
+    border-width: 0.5px;
   }
+  .border-t-0\.5 {
+    border-top-width: 0.5px;
+  }
+  .border-b-0\.5 {
+    border-bottom-width: 0.5px;
+  }
+  .border-l-0\.5 {
+    border-left-width: 0.5px;
+  }
+  .border-r-0\.5 {
+    border-right-width: 0.5px;
+  }
+}
+
+/* Scrollbar Customization */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-border-tertiary);
+  border-radius: 4px;
+}
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: var(--color-border-secondary);
 }

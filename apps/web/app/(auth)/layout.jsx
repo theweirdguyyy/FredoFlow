@@ -1,75 +1,221 @@
+import { Syne } from 'next/font/google';
+
+const syne = Syne({
+  subsets: ['latin'],
+  weight: ['700', '800'],
+  variable: '--font-syne',
+});
+
+export const metadata = {
+  title: 'FredoFlow — Auth',
+};
+
 export default function AuthLayout({ children }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-50/50 p-4 sm:p-12 font-['DM_Sans']">
-      {/* Main Container Card: Fixed 620px Height on Desktop */}
-      <div className="min-h-[620px] md:h-[620px] max-w-[980px] w-full bg-white rounded-[2rem] overflow-hidden border border-zinc-200 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.12)] flex flex-col md:flex-row">
-        
-        {/* Left Section: Dark Immersive Panel (44% width) */}
-        <div className="hidden md:flex md:w-[44%] bg-[#0f0f14] p-12 text-white flex-col justify-between relative overflow-hidden shrink-0">
-          {/* Subtle Geometric Grid Overlay */}
-          <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.08]" 
-            style={{ 
-              backgroundImage: `
-                linear-gradient(to right, rgba(99,102,241,0.5) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(99,102,241,0.5) 1px, transparent 1px)
-              `,
-              backgroundSize: '28px 28px'
-            }} 
-          />
-          
-          {/* Blurred Accent Glow Orb */}
-          <div className="absolute top-[40%] left-[40%] -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-600/25 rounded-full blur-[100px] z-0 pointer-events-none" />
-          
-          {/* Top Branding */}
-          <div className="relative z-10">
-            <div className="flex flex-col gap-3">
-              <div className="w-11 h-11 bg-indigo-500 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white">
-                  <polygon points="12 2 2 7 12 12 22 7 12 2" />
-                  <polyline points="2 17 12 22 22 17" />
-                  <polyline points="2 12 12 17 22 12" />
-                </svg>
-              </div>
-              <h1 className="text-2xl font-black tracking-tight font-['Syne']">FredoFlow</h1>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        minHeight: '100vh',
+        fontFamily: "'DM Sans', sans-serif",
+      }}
+    >
+      {/* ── LEFT PANEL ── */}
+      <div
+        style={{
+          width: '42%',
+          minHeight: '100vh',
+          background: '#0f0f14',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          padding: '40px 40px',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Grid overlay */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage:
+              'linear-gradient(rgba(99,102,241,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.07) 1px, transparent 1px)',
+            backgroundSize: '32px 32px',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
+
+        {/* Glow orb */}
+        <div
+          style={{
+            position: 'absolute',
+            width: '260px',
+            height: '260px',
+            borderRadius: '50%',
+            background: 'rgba(99,102,241,0.13)',
+            filter: 'blur(65px)',
+            top: '38%',
+            left: '8%',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
+
+        {/* Second orb — emerald top-left */}
+        <div
+          style={{
+            position: 'absolute',
+            width: '180px',
+            height: '180px',
+            borderRadius: '50%',
+            background: 'rgba(52,211,153,0.07)',
+            filter: 'blur(55px)',
+            top: '-40px',
+            left: '-40px',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
+
+        {/* ── LOGO ── */}
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div
+              style={{
+                width: '40px',
+                height: '40px',
+                background: '#6366f1',
+                borderRadius: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <svg
+                width="22"
+                height="22"
+                fill="none"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                viewBox="0 0 24 24"
+              >
+                <path d="M12 4L4 8l8 4 8-4-8-4z" />
+                <path d="M4 12l8 4 8-4" />
+                <path d="M4 16l8 4 8-4" />
+              </svg>
             </div>
-          </div>
-
-          {/* Hero Text */}
-          <div className="relative z-10">
-            <h2 className="text-[28px] font-extrabold leading-[1.1] tracking-tight font-['Syne']">
-              Where teams <br />
-              <span className="text-indigo-400">flow together</span>
-            </h2>
-            <p className="mt-4 text-xs text-zinc-500 font-semibold leading-relaxed max-w-[200px] uppercase tracking-wider opacity-80">
-              Goals, announcements, and action items — all in real time.
-            </p>
-          </div>
-
-          {/* Feature Pills */}
-          <div className="relative z-10 space-y-2.5">
-            {[
-              { text: 'Real-time workspace collaboration', dot: 'bg-indigo-500' },
-              { text: 'Kanban boards & goal tracking', dot: 'bg-emerald-400' },
-              { text: 'Live announcements & @mentions', dot: 'bg-amber-500' },
-            ].map((feature, i) => (
-              <div key={feature.text} className="flex items-center gap-2.5 px-3.5 py-2 rounded-full bg-indigo-500/5 border border-indigo-500/10 backdrop-blur-md w-fit transition-all hover:bg-indigo-500/10">
-                <div className={`w-1.5 h-1.5 rounded-full ${feature.dot} shadow-[0_0_8px_rgba(0,0,0,0.5)]`} />
-                <span className="text-[10px] font-bold text-zinc-300 tracking-wider uppercase">{feature.text}</span>
-              </div>
-            ))}
+            <span
+              style={{
+                fontFamily: "'Syne', sans-serif",
+                fontSize: '20px',
+                fontWeight: 800,
+                color: '#ffffff',
+                letterSpacing: '-0.3px',
+              }}
+            >
+              FredoFlow
+            </span>
           </div>
         </div>
 
-        {/* Right Section: Light Workspace (Flex-grow) */}
-        <div className="flex-1 flex flex-col justify-center items-center p-8 sm:p-12 overflow-y-auto bg-white">
-          <div className="w-full max-w-[340px]">
-            {children}
-          </div>
+        {/* ── HERO TEXT ── */}
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <h1
+            style={{
+              fontFamily: "'Syne', sans-serif",
+              fontSize: '32px',
+              fontWeight: 800,
+              lineHeight: 1.15,
+              color: '#ffffff',
+              margin: '0 0 14px',
+              letterSpacing: '-0.5px',
+            }}
+          >
+            Where teams
+            <br />
+            <span style={{ color: '#818cf8' }}>flow together</span>
+          </h1>
+          <p
+            style={{
+              fontSize: '14px',
+              color: 'rgba(255,255,255,0.48)',
+              lineHeight: 1.65,
+              margin: 0,
+            }}
+          >
+            The premium hub for teams to align, track, and succeed in real time.
+          </p>
+        </div>
+
+        {/* ── FEATURE PILLS ── */}
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '9px',
+          }}
+        >
+          {[
+            { dot: '#818cf8', text: 'Real-time workspace collaboration' },
+            { dot: '#34d399', text: 'Kanban boards & goal tracking' },
+            { dot: '#fbbf24', text: 'Live announcements & @mentions' },
+          ].map(({ dot, text }) => (
+            <div
+              key={text}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '10px 14px',
+                background: 'rgba(99,102,241,0.1)',
+                border: '1px solid rgba(99,102,241,0.22)',
+                borderRadius: '8px',
+              }}
+            >
+              <div
+                style={{
+                  width: '7px',
+                  height: '7px',
+                  borderRadius: '50%',
+                  background: dot,
+                  flexShrink: 0,
+                }}
+              />
+              <span
+                style={{
+                  fontSize: '13px',
+                  color: 'rgba(255,255,255,0.65)',
+                }}
+              >
+                {text}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── RIGHT PANEL ── */}
+      <div
+        style={{
+          flex: 1,
+          minHeight: '100vh',
+          background: '#ffffff',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          padding: '56px 52px',
+        }}
+      >
+        <div style={{ maxWidth: '400px', width: '100%' }}>
+          {children}
         </div>
       </div>
     </div>
   );
 }
-
-
-
