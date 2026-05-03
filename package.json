@@ -14,6 +14,10 @@
     "db:migrate": "cd apps/server && npx prisma migrate dev",
     "db:seed": "cd apps/server && node prisma/seed.js"
   },
+  "overrides": {
+    "react": "$react",
+    "react-dom": "$react-dom"
+  },
   "devDependencies": {
     "turbo": "^2.1.0"
   },
