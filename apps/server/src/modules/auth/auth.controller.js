@@ -1,7 +1,7 @@
 import * as authService from './auth.service.js';
 import path from 'path';
 import { setAuthCookies, clearAuthCookies } from '../../utils/cookies.js';
-import { validateEmail, validatePassword, validateName } from '@fredoflow/shared';
+import { validateEmail, validatePassword, validateName } from '../../utils/validators.js';
 
 /**
  * POST /api/v1/auth/register
