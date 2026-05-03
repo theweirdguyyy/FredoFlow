@@ -15,8 +15,8 @@
     "db:seed": "cd apps/server && node prisma/seed.js"
   },
   "overrides": {
-    "react": "$react",
-    "react-dom": "$react-dom"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "turbo": "^2.1.0"
