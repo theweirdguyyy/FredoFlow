@@ -12,7 +12,8 @@
     "db:generate": "cd apps/server && npx prisma generate",
     "db:push": "cd apps/server && npx prisma db push",
     "db:migrate": "cd apps/server && npx prisma migrate dev",
-    "db:seed": "cd apps/server && node prisma/seed.js"
+    "db:seed": "cd apps/server && node prisma/seed.js",
+    "start": "turbo run start"
   },
   "overrides": {
     "react": "^18.2.0",
