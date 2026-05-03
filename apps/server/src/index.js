@@ -4,8 +4,8 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
 import http from 'http';
+
 import { errorHandler } from './middleware/errorHandler.js';
 import { initializeSocket } from './config/socket.js';
 import authRoutes from './modules/auth/auth.routes.js';
@@ -24,41 +24,54 @@ const server = http.createServer(app);
 // ─── Initialize Real-Time (Socket.io) ────────────────────────
 initializeSocket(server);
 
-// ─── Global Middleware ───────────────────────────────────────
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  const allowed = process.env.CLIENT_URL || 'http://localhost:3000';
-  
-  if (origin && (origin === allowed || origin === allowed.replace(/\/$/, '') || origin.includes('railway.app'))) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
-  
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,PATCH,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
+// ─── CORS — MUST be the very first middleware ─────────────────
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  process.env.CLIENT_URL,                         // e.g. https://fredoflowweb-production.up.railway.app
+].filter(Boolean);                                 // removes undefined if CLIENT_URL not set
 
-  // Handle Preflight
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
-});
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (curl, Postman, mobile apps)
+      if (!origin) return callback(null, true);
 
+      if (ALLOWED_ORIGINS.includes(origin)) {
+        return callback(null, true);
+      }
+
+      // Extra safety net: allow any railway.app subdomain
+      if (origin.endsWith('.railway.app')) {
+        return callback(null, true);
+      }
+
+      console.error(`[CORS] Blocked origin: ${origin}`);
+      return callback(new Error(`CORS: origin ${origin} is not allowed`));
+    },
+    credentials: true,           // Required for httpOnly cookies
+    methods: ['GET','POST','PUT','DELETE','PATCH','OPTIONS'],
+    allowedHeaders: ['Content-Type','Authorization','X-Requested-With','Accept'],
+    optionsSuccessStatus: 200,   // Some legacy browsers choke on 204
+  })
+);
+
+// ─── Global Middleware ────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// ─── Static Files (Uploads) ──────────────────────────────────
+// ─── Static Files ─────────────────────────────────────────────
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// ─── Health Check ────────────────────────────────────────────
+// ─── Health Check ─────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
   res.json({ success: true, data: { status: 'ok', timestamp: new Date().toISOString() } });
 });
 
-// ─── API Routes ──────────────────────────────────────────────
+// ─── API Routes ───────────────────────────────────────────────
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/workspaces', workspaceRoutes);
 app.use('/api/v1/workspaces/:workspaceId/goals', goalRoutes);
@@ -68,22 +81,18 @@ app.use('/api/v1/workspaces/:workspaceId/action-items', actionItemRoutes);
 app.use('/api/v1/workspaces/:workspaceId/analytics', analyticsRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 
-// ─── 404 Handler ─────────────────────────────────────────────
+// ─── 404 Handler ──────────────────────────────────────────────
 app.use((_req, res) => {
-  res.status(404).json({
-    success: false,
-    error: 'Route not found',
-    code: 'NOT_FOUND',
-  });
+  res.status(404).json({ success: false, error: 'Route not found', code: 'NOT_FOUND' });
 });
 
-// ─── Error Handler ───────────────────────────────────────────
+// ─── Error Handler ────────────────────────────────────────────
 app.use(errorHandler);
 
-// ─── Start Server ────────────────────────────────────────────
+// ─── Start Server ─────────────────────────────────────────────
 server.listen(PORT, () => {
-  console.log(`🚀 FredoFlow API running on http://localhost:${PORT}`);
-  console.log(`📋 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🚀 FredoFlow API running on port ${PORT}`);
+  console.log(`✅ Allowed CORS origins: ${ALLOWED_ORIGINS.join(', ')}`);
 });
 
 export default app;
