@@ -21,10 +21,10 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
 
-// ─── Initialize Real-Time (Socket.io) ────────────────────────
+// ─── Initialize Real-Time (Socket.io) 
 initializeSocket(server);
 
-// ─── CORS — MUST be the very first middleware ─────────────────
+// ─── CORS — MUST be the very first middleware 
 const ALLOWED_ORIGINS = [
   'http://localhost:3000',
   'http://localhost:3001',
@@ -56,22 +56,22 @@ app.use(
   })
 );
 
-// ─── Global Middleware ────────────────────────────────────────
+// ─── Global Middleware 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// ─── Static Files ─────────────────────────────────────────────
+// ─── Static Files 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// ─── Health Check ─────────────────────────────────────────────
+// ─── Health Check 
 app.get('/api/health', (_req, res) => {
   res.json({ success: true, data: { status: 'ok', timestamp: new Date().toISOString() } });
 });
 
-// ─── API Routes ───────────────────────────────────────────────
+// ─── API Routes 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/workspaces', workspaceRoutes);
 app.use('/api/v1/workspaces/:workspaceId/goals', goalRoutes);
@@ -81,15 +81,33 @@ app.use('/api/v1/workspaces/:workspaceId/action-items', actionItemRoutes);
 app.use('/api/v1/workspaces/:workspaceId/analytics', analyticsRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 
-// ─── 404 Handler ──────────────────────────────────────────────
+// Root — confirms server is alive
+app.get('/', (_req, res) => {
+  res.json({ success: true, message: 'FredoFlow API is running.' });
+});
+
+// Health check
+app.get('/api/health', (_req, res) => {
+  res.json({
+    success: true,
+    data: {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      clientUrl: process.env.CLIENT_URL || 'NOT SET',
+      nodeEnv: process.env.NODE_ENV || 'NOT SET',
+    },
+  });
+});
+
+// ─── 404 Handler 
 app.use((_req, res) => {
   res.status(404).json({ success: false, error: 'Route not found', code: 'NOT_FOUND' });
 });
 
-// ─── Error Handler ────────────────────────────────────────────
+// ─── Error Handler
 app.use(errorHandler);
 
-// ─── Start Server ─────────────────────────────────────────────
+// ─── Start Server
 server.listen(PORT, () => {
   console.log(`🚀 FredoFlow API running on port ${PORT}`);
   console.log(`✅ Allowed CORS origins: ${ALLOWED_ORIGINS.join(', ')}`);
