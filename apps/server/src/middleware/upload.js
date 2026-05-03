@@ -2,10 +2,9 @@ import multer from 'multer';
 import { v2 as cloudinary } from 'cloudinary';
 import { Readable } from 'stream';
 
- 
 const memStorage = multer.memoryStorage();
 
-// ── Generic file size limits 
+// ── Export raw multer instances — routes call .single() on these
 export const avatarUpload = multer({
   storage: memStorage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
@@ -13,14 +12,14 @@ export const avatarUpload = multer({
     if (file.mimetype.startsWith('image/')) return cb(null, true);
     cb(new Error('Only image files are allowed.'));
   },
-}).single('avatar');
+});
 
 export const attachmentUpload = multer({
   storage: memStorage,
   limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
-}).single('file');
+});
 
-// ── Helper: upload a buffer to Cloudinary 
+// ── Upload a buffer to Cloudinary ─────────────────────────────
 export const uploadBufferToCloudinary = (buffer, options = {}) => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
@@ -34,8 +33,6 @@ export const uploadBufferToCloudinary = (buffer, options = {}) => {
         resolve(result);
       }
     );
-
-    // Convert buffer to readable stream and pipe to Cloudinary
     const readable = new Readable();
     readable.push(buffer);
     readable.push(null);
@@ -43,7 +40,7 @@ export const uploadBufferToCloudinary = (buffer, options = {}) => {
   });
 };
 
-// ── Convenience: upload avatar buffer 
+// ── Avatar upload helper ───────────────────────────────────────
 export const uploadAvatar = (buffer, publicId) =>
   uploadBufferToCloudinary(buffer, {
     folder: 'fredoflow/avatars',
@@ -56,7 +53,7 @@ export const uploadAvatar = (buffer, publicId) =>
     ],
   });
 
-// ── Convenience: upload attachment buffer 
+// ── Attachment upload helper ───────────────────────────────────
 export const uploadAttachment = (buffer, filename) =>
   uploadBufferToCloudinary(buffer, {
     folder: 'fredoflow/attachments',

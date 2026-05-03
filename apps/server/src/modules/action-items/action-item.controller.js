@@ -2,6 +2,7 @@ import * as actionItemService from './action-item.service.js';
 import { getIO } from '../../config/socket.js';
 import { AppError } from '../../middleware/errorHandler.js';
 import { logAction } from '../audit/audit-log.service.js';
+import { uploadAttachment } from '../../middleware/upload.js';
 
 /**
  * POST /api/v1/workspaces/:workspaceId/action-items
@@ -147,9 +148,10 @@ export async function addAttachment(req, res, next) {
     }
 
     const { actionItemId } = req.params;
+    const result = await uploadAttachment(req.file.buffer, req.file.originalname);
     const attachment = await actionItemService.addAttachment(actionItemId, {
-      url: req.file.path,
-      publicId: req.file.filename,
+      url: result.secure_url,
+      publicId: result.public_id,
       filename: req.file.originalname || 'attachment',
     });
 

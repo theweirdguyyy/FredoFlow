@@ -2,6 +2,7 @@ import * as authService from './auth.service.js';
 import path from 'path';
 import { setAuthCookies, clearAuthCookies } from '../../utils/cookies.js';
 import { validateEmail, validatePassword, validateName } from '../../utils/validators.js';
+import { uploadAvatar } from '../../middleware/upload.js';
 
 /**
  * POST /api/v1/auth/register
@@ -150,8 +151,8 @@ export async function updateAvatar(req, res, next) {
     if (!req.file) {
       return res.status(400).json({ success: false, error: 'No file uploaded', code: 'VALIDATION_ERROR' });
     }
-    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
-    const user = await authService.updateAvatar(req.user.id, avatarUrl);
+    const result = await uploadAvatar(req.file.buffer, `user-${req.user.id}`);
+    const user = await authService.updateAvatar(req.user.id, result.secure_url);
     res.status(200).json({ success: true, data: { user }, message: 'Avatar updated successfully' });
   } catch (error) {
     next(error);
