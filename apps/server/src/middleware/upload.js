@@ -1,53 +1,65 @@
 import multer from 'multer';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
-import cloudinary from '../config/cloudinary.js';
-import { AppError } from './errorHandler.js';
+import { v2 as cloudinary } from 'cloudinary';
+import { Readable } from 'stream';
 
-// --- Avatar Storage Configuration ---
-const avatarStorage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'fredoflow/avatars',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
-    transformation: [{ width: 500, height: 500, crop: 'limit' }],
+ 
+const memStorage = multer.memoryStorage();
+
+// ── Generic file size limits 
+export const avatarUpload = multer({
+  storage: memStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) return cb(null, true);
+    cb(new Error('Only image files are allowed.'));
   },
-});
+}).single('avatar');
 
-const avatarFileFilter = (_req, file, cb) => {
-  const allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-  if (allowedMimes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new AppError('Only image files (JPEG, PNG, GIF, WebP) are allowed', 400, 'INVALID_FILE_TYPE'), false);
-  }
+export const attachmentUpload = multer({
+  storage: memStorage,
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
+}).single('file');
+
+// ── Helper: upload a buffer to Cloudinary 
+export const uploadBufferToCloudinary = (buffer, options = {}) => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: options.folder || 'fredoflow/uploads',
+        resource_type: options.resource_type || 'auto',
+        ...options,
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+
+    // Convert buffer to readable stream and pipe to Cloudinary
+    const readable = new Readable();
+    readable.push(buffer);
+    readable.push(null);
+    readable.pipe(uploadStream);
+  });
 };
 
-// --- Attachment Storage Configuration ---
-const attachmentStorage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
+// ── Convenience: upload avatar buffer 
+export const uploadAvatar = (buffer, publicId) =>
+  uploadBufferToCloudinary(buffer, {
+    folder: 'fredoflow/avatars',
+    public_id: publicId,
+    overwrite: true,
+    resource_type: 'image',
+    transformation: [
+      { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+      { quality: 'auto', fetch_format: 'auto' },
+    ],
+  });
+
+// ── Convenience: upload attachment buffer 
+export const uploadAttachment = (buffer, filename) =>
+  uploadBufferToCloudinary(buffer, {
     folder: 'fredoflow/attachments',
-    resource_type: 'auto', // Allows non-image files like PDFs
-  },
-});
-
-// --- Exported Middlewares ---
-
-/**
- * Middleware for single avatar image upload.
- * Max size: 5MB
- */
-export const avatarUpload = multer({
-  storage: avatarStorage,
-  fileFilter: avatarFileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-});
-
-/**
- * Middleware for generic attachments (images, pdfs, docs).
- * Max size: 10MB
- */
-export const attachmentUpload = multer({
-  storage: attachmentStorage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
-});
+    public_id: `${Date.now()}-${filename}`,
+    resource_type: 'auto',
+  });
