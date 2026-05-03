@@ -1,65 +1,31 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1',
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api/v1`,
   withCredentials: true,
+  timeout: 15000,
 });
 
-let isRefreshing = false;
-let failedQueue = [];
-
-const processQueue = (error, token = null) => {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
-  });
-  failedQueue = [];
-};
-
+// Response interceptor — silent token refresh on 401
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
-
-    // Handle 401 Unauthorized errors (expired access token)
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then(() => api(originalRequest))
-          .catch((err) => Promise.reject(err));
-      }
-
-      originalRequest._retry = true;
-      isRefreshing = true;
-
+    const original = error.config;
+    if (error.response?.status === 401 && !original._retry) {
+      original._retry = true;
       try {
-        // Attempt to refresh the token
         await axios.post(
-          `${api.defaults.baseURL}/auth/refresh`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/refresh`,
           {},
           { withCredentials: true }
         );
-        
-        processQueue(null);
-        return api(originalRequest);
-      } catch (refreshError) {
-        processQueue(refreshError, null);
-        
-        // If refresh fails, redirect to login
+        return api(original);
+      } catch {
         if (typeof window !== 'undefined') {
           window.location.href = '/login';
         }
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
       }
     }
-
     return Promise.reject(error);
   }
 );
