@@ -49,3 +49,27 @@ export async function exportWorkspaceCSV(req, res, next) {
     next(error);
   }
 }
+
+/**
+ * GET /api/v1/workspaces/:workspaceId/analytics/audit-log
+ */
+export async function getAuditLog(req, res, next) {
+  try {
+    const { workspaceId } = req.params;
+    const { actorId, entityType, page, limit } = req.query;
+
+    const data = await analyticsService.getAuditLog(workspaceId, {
+      actorId,
+      entityType,
+      page: parseInt(page) || 1,
+      limit: parseInt(limit) || 20,
+    });
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+}

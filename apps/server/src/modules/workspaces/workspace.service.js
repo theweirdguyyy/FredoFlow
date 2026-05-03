@@ -108,6 +108,27 @@ export async function updateWorkspace(workspaceId, data) {
 }
 
 /**
+ * Delete a workspace (owner only).
+ */
+export async function deleteWorkspace(workspaceId, userId) {
+  const workspace = await prisma.workspace.findUnique({
+    where: { id: workspaceId },
+  });
+
+  if (!workspace) {
+    throw new AppError('Workspace not found', 404, 'WORKSPACE_NOT_FOUND');
+  }
+
+  if (workspace.ownerId !== userId) {
+    throw new AppError('Only the workspace owner can delete a workspace', 403, 'FORBIDDEN');
+  }
+
+  await prisma.workspace.delete({
+    where: { id: workspaceId },
+  });
+}
+
+/**
  * Invite a member to a workspace.
  */
 export async function inviteMember(workspaceId, { email, role }) {
@@ -149,6 +170,11 @@ export async function inviteMember(workspaceId, { email, role }) {
       token,
       expiresAt,
     },
+    include: {
+      workspace: {
+        select: { name: true }
+      }
+    }
   });
 }
 

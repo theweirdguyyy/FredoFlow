@@ -1,5 +1,6 @@
 import * as workspaceService from './workspace.service.js';
 import { logAction } from '../audit/audit-log.service.js';
+import { sendInviteEmail } from '../../utils/email.js';
 
 /**
  * POST /api/v1/workspaces
@@ -78,6 +79,25 @@ export async function updateWorkspace(req, res, next) {
 }
 
 /**
+ * DELETE /api/v1/workspaces/:workspaceId
+ */
+export async function deleteWorkspace(req, res, next) {
+  try {
+    await workspaceService.deleteWorkspace(req.params.workspaceId, req.user.id);
+
+    await logAction(req.params.workspaceId, req.user.id, 'WORKSPACE_DELETED', { workspaceId: req.params.workspaceId });
+
+    res.status(200).json({
+      success: true,
+      data: null,
+      message: 'Workspace deleted successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
  * POST /api/v1/workspaces/:workspaceId/invites
  */
 export async function inviteMember(req, res, next) {
@@ -87,6 +107,9 @@ export async function inviteMember(req, res, next) {
       email,
       role,
     });
+    
+    // Send invitation email (logged to console)
+    await sendInviteEmail(email, invite.workspace.name, invite.token);
     
     await logAction(req.params.workspaceId, req.user.id, 'MEMBER_INVITED', { email, role });
 

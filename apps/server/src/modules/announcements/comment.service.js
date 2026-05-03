@@ -4,17 +4,24 @@ import { AppError } from '../../middleware/errorHandler.js';
 /**
  * Add a comment and notify mentioned users.
  */
-export async function addComment(announcementId, authorId, content) {
+export async function addComment(announcementId, authorId, content, bodyMentionedIds = []) {
   // Extract potential mentions: @Name
   const mentionRegex = /@(\w+)/g;
   const matches = content.matchAll(mentionRegex);
   const mentionedNames = [...new Set([...matches].map(m => m[1]))];
+  
+  // Find users by name
+  const usersByName = await prisma.user.findMany({
+    where: { name: { in: mentionedNames } },
+    select: { id: true, name: true }
+  });
 
-  // Find users by name in the same workspace (implied by announcement context)
+  // Combine IDs from body and IDs found by name
+  const combinedIds = [...new Set([...bodyMentionedIds, ...usersByName.map(u => u.id)])];
+  
+  // Fetch full user objects for all mentioned IDs to ensure they exist and get names for logs if needed
   const mentionedUsers = await prisma.user.findMany({
-    where: {
-      name: { in: mentionedNames },
-    },
+    where: { id: { in: combinedIds } },
     select: { id: true, name: true },
   });
 

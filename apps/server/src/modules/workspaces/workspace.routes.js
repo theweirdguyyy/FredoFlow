@@ -18,6 +18,7 @@ router.get('/:workspaceId', workspaceController.getWorkspaceById);
 
 // Admin-only workspace operations
 router.patch('/:workspaceId', requireRole('ADMIN'), workspaceController.updateWorkspace);
+router.delete('/:workspaceId', requireRole('ADMIN'), workspaceController.deleteWorkspace);
 router.post('/:workspaceId/invites', requireRole('ADMIN'), workspaceController.inviteMember);
 router.delete('/:workspaceId/members/:userId', requireRole('ADMIN'), workspaceController.removeMember);
 router.patch('/:workspaceId/members/:userId/role', requireRole('ADMIN'), workspaceController.updateMemberRole);

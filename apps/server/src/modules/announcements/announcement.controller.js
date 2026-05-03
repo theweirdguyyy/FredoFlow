@@ -15,12 +15,26 @@ export async function createAnnouncement(req, res, next) {
 
     try {
       const io = getIO();
+      // Real-time broadcast for the announcements page
       io.to(`workspace:${workspaceId}`).emit('NEW_ANNOUNCEMENT', {
         workspaceId,
         announcement,
       });
+
+      // Create database notifications and emit to personal rooms
+      const { notifyWorkspaceMembers } = await import('../notifications/notification.service.js');
+      const notifications = await notifyWorkspaceMembers(workspaceId, req.user.id, {
+        type: 'ANNOUNCEMENT_POSTED',
+        entityId: announcement.id,
+        entityType: 'ANNOUNCEMENT',
+        message: `${req.user.name} posted a new announcement: ${announcement.title}`,
+      });
+
+      notifications.forEach(notif => {
+        io.to(`user:${notif.recipientId}`).emit('NEW_NOTIFICATION', notif);
+      });
     } catch (err) {
-      console.error('Socket emission failed:', err.message);
+      console.error('Notification/Socket emission failed:', err.message);
     }
 
     res.status(201).json({
@@ -185,19 +199,23 @@ export async function removeReaction(req, res, next) {
 export async function addComment(req, res, next) {
   try {
     const { announcementId } = req.params;
-    const { content } = req.body;
-    const { comment, mentionedUserIds } = await commentService.addComment(announcementId, req.user.id, content);
+    const { content, mentionedUserIds: bodyMentionedIds } = req.body;
+    const { comment, mentionedUserIds } = await commentService.addComment(announcementId, req.user.id, content, bodyMentionedIds);
 
     try {
       const io = getIO();
       // Notify mentioned users
       mentionedUserIds.forEach(userId => {
         io.to(`user:${userId}`).emit('NEW_NOTIFICATION', {
+          id: `tmp-${Date.now()}-${userId}`, // Temp ID until refresh
           type: 'MENTION',
           actorId: req.user.id,
+          actor: comment.author, // Include actor info for UI
           entityId: announcementId,
           entityType: 'ANNOUNCEMENT',
-          message: 'mentioned you in a comment',
+          message: `${comment.author.name} mentioned you in a comment`,
+          createdAt: new Date().toISOString(),
+          isRead: false
         });
       });
     } catch (err) {

@@ -12,5 +12,6 @@ router.use(requireRole('ADMIN'));
 router.get('/stats', analyticsController.getWorkspaceStats);
 router.get('/charts', analyticsController.getGoalCompletionData);
 router.get('/export', analyticsController.exportWorkspaceCSV);
+router.get('/audit-log', analyticsController.getAuditLog);
 
 export default router;
