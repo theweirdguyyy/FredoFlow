@@ -26,8 +26,18 @@ initializeSocket(server);
 
 // ─── Global Middleware ───────────────────────────────────────
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    const allowed = process.env.CLIENT_URL || 'http://localhost:3000';
+    // Allow if no origin (like mobile apps or curl) or if matches CLIENT_URL
+    if (!origin || origin === allowed || origin === allowed.replace(/\/$/, '')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
