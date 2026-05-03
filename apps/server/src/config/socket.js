@@ -8,7 +8,14 @@ const presenceMap = new Map(); // Map<workspaceId, Set<userId>>
 export function initializeSocket(httpServer) {
   io = new Server(httpServer, {
     cors: {
-      origin: process.env.CLIENT_URL || 'http://localhost:3000',
+      origin: (origin, callback) => {
+        const allowed = process.env.CLIENT_URL || 'http://localhost:3000';
+        if (!origin || origin === allowed || origin === allowed.replace(/\/$/, '')) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
       credentials: true,
     },
   });
