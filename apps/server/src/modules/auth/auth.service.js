@@ -180,3 +180,56 @@ export async function getMe(userId) {
 
   return user;
 }
+
+/**
+ * Update user profile (name only for now).
+ * @param {string} userId
+ * @param {{ name: string }} data
+ * @returns {object} updated user
+ */
+export async function updateProfile(userId, { name }) {
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: { name },
+    select: { id: true, email: true, name: true, avatarUrl: true, createdAt: true, updatedAt: true },
+  });
+  return user;
+}
+
+/**
+ * Update user avatar URL.
+ * @param {string} userId
+ * @param {string} avatarUrl
+ * @returns {object} updated user
+ */
+export async function updateAvatar(userId, avatarUrl) {
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: { avatarUrl },
+    select: { id: true, email: true, name: true, avatarUrl: true, createdAt: true, updatedAt: true },
+  });
+  return user;
+}
+
+/**
+ * Change user password.
+ * @param {string} userId
+ * @param {{ currentPassword: string, newPassword: string }} data
+ */
+export async function changePassword(userId, { currentPassword, newPassword }) {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) {
+    throw new AppError('User not found', 404, 'USER_NOT_FOUND');
+  }
+
+  const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!isMatch) {
+    throw new AppError('Current password is incorrect', 400, 'INVALID_PASSWORD');
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+  await prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash },
+  });
+}

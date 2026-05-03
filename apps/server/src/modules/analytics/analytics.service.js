@@ -118,3 +118,41 @@ export async function exportWorkspaceCSV(workspaceId) {
     })),
   };
 }
+
+/**
+ * Get audit logs for a workspace with pagination and filters.
+ */
+export async function getAuditLog(workspaceId, { actorId, entityType, page = 1, limit = 20 } = {}) {
+  const skip = (page - 1) * limit;
+
+  const where = {
+    workspaceId,
+    ...(actorId && { actorId }),
+    ...(entityType && { entityType }),
+  };
+
+  const [logs, total] = await Promise.all([
+    prisma.auditLog.findMany({
+      where,
+      include: {
+        actor: {
+          select: { id: true, name: true, avatarUrl: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.auditLog.count({ where }),
+  ]);
+
+  return {
+    logs,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+}

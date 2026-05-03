@@ -29,8 +29,8 @@ export async function updateMilestone(req, res, next) {
 
     const milestone = await milestoneService.updateMilestone(milestoneId, req.body);
 
-    // Emit socket event for progress update
-    if (progress !== undefined) {
+    // Emit socket event for progress or completion update
+    if (progress !== undefined || req.body.completed !== undefined) {
       try {
         const io = getIO();
         io.to(`workspace:${workspaceId}`).emit('PROGRESS_POSTED', {
@@ -38,6 +38,7 @@ export async function updateMilestone(req, res, next) {
           goalId,
           milestoneId,
           progress,
+          completed: req.body.completed,
           updatedBy: req.user.id,
         });
       } catch (err) {

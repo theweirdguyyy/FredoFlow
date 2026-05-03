@@ -7,16 +7,40 @@ import { toast } from 'react-hot-toast';
 import api from '../../../lib/api';
 import { useAuthStore } from '../../../store/authStore';
 
+const inputBase = {
+  width: '100%',
+  padding: '11px 42px 11px 14px',
+  boxSizing: 'border-box',
+  fontSize: '14px',
+  fontFamily: "'DM Sans', sans-serif",
+  color: '#111827',
+  background: '#f9fafb',
+  border: '1px solid #e5e7eb',
+  borderRadius: '8px',
+  outline: 'none',
+  transition: 'border-color 0.15s, background 0.15s',
+};
+
+const labelBase = {
+  display: 'block',
+  fontSize: '11px',
+  fontWeight: 500,
+  color: '#6b7280',
+  textTransform: 'uppercase',
+  letterSpacing: '0.4px',
+  marginBottom: '6px',
+};
+
 export default function LoginPage() {
   const [formData, setFormData] = useState({ email: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const setUser = useAuthStore((state) => state.setUser);
+  const setUser = useAuthStore((s) => s.setUser);
 
-  const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+  const handleChange = (e) =>
+    setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,116 +54,70 @@ export default function LoginPage() {
       const res = await api.post('/auth/login', formData);
       setUser(res.data.data.user);
       toast.success('Welcome back to FredoFlow!');
-      router.push('/dashboard');
+      router.push('/workspaces');
     } catch (err) {
-      const message = err.response?.data?.message || 'Invalid email or password.';
-      setError(message);
-      toast.error(message);
+      const msg = err.response?.data?.message || 'Invalid email or password.';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
 
-  /* ── shared input style ── */
-  const inputStyle = {
-    width: '100%',
-    padding: '11px 42px 11px 14px',
-    boxSizing: 'border-box',
-    fontSize: '14px',
-    fontFamily: "'DM Sans', sans-serif",
-    color: '#111827',
-    background: '#f9fafb',
-    border: '1px solid #e5e7eb',
-    borderRadius: '8px',
-    outline: 'none',
-    transition: 'border-color 0.15s, background 0.15s',
+  const focusStyle = (e) => {
+    e.target.style.borderColor = '#6366f1';
+    e.target.style.background = '#fff';
   };
-
-  const labelStyle = {
-    display: 'block',
-    fontSize: '11px',
-    fontWeight: 500,
-    color: '#6b7280',
-    textTransform: 'uppercase',
-    letterSpacing: '0.4px',
-    marginBottom: '6px',
+  const blurStyle = (e) => {
+    e.target.style.borderColor = '#e5e7eb';
+    e.target.style.background = '#f9fafb';
   };
 
   return (
-    <div>
-      {/* ── HEADING ── */}
+    <div className="animate-fade-in">
+      {/* Heading */}
       <div style={{ marginBottom: '32px' }}>
-        <h2
-          style={{
-            fontFamily: "'Syne', sans-serif",
-            fontSize: '26px',
-            fontWeight: 800,
-            color: '#111827',
-            margin: '0 0 6px',
-            letterSpacing: '-0.4px',
-          }}
-        >
+        <h2 style={{
+          fontFamily: "'Syne', sans-serif", fontSize: 'clamp(22px, 4vw, 28px)',
+          fontWeight: 800, color: '#111827', margin: '0 0 6px', letterSpacing: '-0.4px',
+        }}>
           Welcome back
         </h2>
         <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
           New to FredoFlow?{' '}
-          <Link
-            href="/register"
-            style={{ color: '#6366f1', fontWeight: 500, textDecoration: 'none' }}
-          >
+          <Link href="/register" style={{ color: '#6366f1', fontWeight: 500 }}>
             Create an account
           </Link>
         </p>
       </div>
 
-      {/* ── ERROR BANNER ── */}
+      {/* Error banner */}
       {error && (
-        <div
-          style={{
-            marginBottom: '16px',
-            padding: '10px 14px',
-            background: 'rgba(239,68,68,0.06)',
-            border: '1px solid rgba(239,68,68,0.25)',
-            borderRadius: '8px',
-            fontSize: '13px',
-            color: '#dc2626',
-          }}
-        >
+        <div style={{
+          marginBottom: '16px', padding: '10px 14px',
+          background: 'rgba(239,68,68,0.06)',
+          border: '1px solid rgba(239,68,68,0.25)',
+          borderRadius: '8px', fontSize: '13px', color: '#dc2626',
+        }}>
           {error}
         </div>
       )}
 
-      {/* ── FORM ── */}
+      {/* Form */}
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
         {/* Email */}
         <div>
-          <label htmlFor="email" style={labelStyle}>Email Address</label>
+          <label style={labelBase}>Email Address</label>
           <div style={{ position: 'relative' }}>
             <input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="name@company.com"
-              value={formData.email}
-              onChange={handleChange}
-              disabled={loading}
-              style={inputStyle}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#6366f1';
-                e.target.style.background = '#fff';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#e5e7eb';
-                e.target.style.background = '#f9fafb';
-              }}
+              name="email" type="email" placeholder="name@company.com"
+              value={formData.email} onChange={handleChange}
+              disabled={loading} style={inputBase}
+              onFocus={focusStyle} onBlur={blurStyle}
             />
-            {/* Envelope icon */}
-            <svg
-              style={{ position: 'absolute', right: '13px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
-              width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="#9ca3af" strokeWidth="1.8" strokeLinecap="round"
-            >
+            <svg style={{ position: 'absolute', right: '13px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+              width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.8" strokeLinecap="round">
               <rect x="2" y="4" width="20" height="16" rx="2" />
               <path d="M2 7l10 7 10-7" />
             </svg>
@@ -148,139 +126,100 @@ export default function LoginPage() {
 
         {/* Password */}
         <div>
-          <label htmlFor="password" style={labelStyle}>Password</label>
+          <label style={labelBase}>Password</label>
           <div style={{ position: 'relative' }}>
             <input
-              id="password"
-              name="password"
-              type="password"
+              name="password" type={showPassword ? 'text' : 'password'}
               placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
-              disabled={loading}
-              style={inputStyle}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#6366f1';
-                e.target.style.background = '#fff';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#e5e7eb';
-                e.target.style.background = '#f9fafb';
-              }}
+              value={formData.password} onChange={handleChange}
+              disabled={loading} style={inputBase}
+              onFocus={focusStyle} onBlur={blurStyle}
             />
-            {/* Lock icon */}
-            <svg
-              style={{ position: 'absolute', right: '13px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
-              width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="#9ca3af" strokeWidth="1.8" strokeLinecap="round"
+            <button
+              type="button"
+              onClick={() => setShowPassword((p) => !p)}
+              style={{
+                position: 'absolute', right: '13px', top: '50%',
+                transform: 'translateY(-50%)', background: 'none',
+                border: 'none', cursor: 'pointer', padding: 0, display: 'flex',
+              }}
             >
-              <rect x="3" y="11" width="18" height="11" rx="2" />
-              <path d="M7 11V7a5 5 0 0110 0v4" />
-            </svg>
+              {showPassword ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.8" strokeLinecap="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                </svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.8" strokeLinecap="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
 
-        {/* Remember me + Forgot */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {/* Remember + Forgot */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              defaultChecked
-              style={{ width: '14px', height: '14px', accentColor: '#6366f1', cursor: 'pointer', margin: 0 }}
-            />
+            <input type="checkbox" defaultChecked
+              style={{ width: '14px', height: '14px', accentColor: '#6366f1', cursor: 'pointer', margin: 0 }} />
             <span style={{ fontSize: '13px', color: '#6b7280' }}>Remember me</span>
           </label>
-          <Link
-            href="#"
-            style={{ fontSize: '13px', color: '#6366f1', textDecoration: 'none' }}
-          >
+          <Link href="#" style={{ fontSize: '13px', color: '#6366f1' }}>
             Forgot password?
           </Link>
         </div>
 
         {/* Submit */}
         <button
-          type="submit"
-          disabled={loading}
+          type="submit" disabled={loading}
           style={{
-            width: '100%',
-            padding: '12px',
-            marginTop: '4px',
+            width: '100%', padding: '12px', marginTop: '4px',
             background: loading ? '#818cf8' : '#6366f1',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: 500,
+            color: '#fff', border: 'none', borderRadius: '8px',
+            fontSize: '14px', fontWeight: 500,
             fontFamily: "'DM Sans', sans-serif",
             cursor: loading ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            transition: 'background 0.15s',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            gap: '8px', transition: 'background 0.15s',
           }}
           onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = '#4f46e5'; }}
           onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = '#6366f1'; }}
         >
           {loading ? (
-            /* Spinner */
-            <svg
-              width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="white" strokeWidth="2.5" strokeLinecap="round"
-              style={{ animation: 'spin 0.8s linear infinite' }}
-            >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" className="animate-spin">
               <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
             </svg>
           ) : (
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
-              <path d="M15 3h6v18h-6" />
-              <path d="M10 17l5-5-5-5" />
-              <path d="M15 12H3" />
+              <path d="M15 3h6v18h-6" /><path d="M10 17l5-5-5-5" /><path d="M15 12H3" />
             </svg>
           )}
           {loading ? 'Signing in...' : 'Sign in to FredoFlow'}
         </button>
       </form>
 
-      {/* ── DIVIDER ── */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          margin: '22px 0',
-        }}
-      >
+      {/* Divider */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '22px 0' }}>
         <div style={{ flex: 1, height: '1px', background: '#e5e7eb' }} />
-        <span style={{ fontSize: '12px', color: '#9ca3af', whiteSpace: 'nowrap' }}>
-          or continue with
-        </span>
+        <span style={{ fontSize: '12px', color: '#9ca3af', whiteSpace: 'nowrap' }}>or continue with</span>
         <div style={{ flex: 1, height: '1px', background: '#e5e7eb' }} />
       </div>
 
-      {/* ── GOOGLE BUTTON ── */}
+      {/* Google */}
       <button
         type="button"
         style={{
-          width: '100%',
-          padding: '11px',
-          background: '#ffffff',
-          color: '#374151',
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px',
-          fontSize: '13px',
-          fontWeight: 500,
+          width: '100%', padding: '11px', background: '#fff',
+          color: '#374151', border: '1px solid #e5e7eb', borderRadius: '8px',
+          fontSize: '13px', fontWeight: 500,
           fontFamily: "'DM Sans', sans-serif",
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px',
-          transition: 'background 0.15s',
+          cursor: 'pointer', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', gap: '8px', transition: 'background 0.15s',
         }}
         onMouseEnter={(e) => { e.currentTarget.style.background = '#f9fafb'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = '#ffffff'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = '#fff'; }}
       >
         <svg width="15" height="15" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -290,9 +229,6 @@ export default function LoginPage() {
         </svg>
         Sign in with Google
       </button>
-
-      {/* Spinner keyframe */}
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
  */
 export function middleware(request) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get('accessToken')?.value;
+  const token = request.cookies.get('access_token')?.value;
 
   const isAuthPage = pathname === '/login' || pathname === '/register';
   const isPublicAsset = pathname.startsWith('/_next') || 

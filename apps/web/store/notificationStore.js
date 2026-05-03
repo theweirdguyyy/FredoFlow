@@ -14,6 +14,17 @@ export const useNotificationStore = create((set, get) => ({
     set({ notifications: notifications || [], unreadCount });
   },
 
+  fetchNotifications: async () => {
+    try {
+      const res = await api.get('/notifications');
+      const notifications = res.data.data.notifications || [];
+      const unreadCount = notifications.filter(n => !n.isRead).length;
+      set({ notifications, unreadCount });
+    } catch (err) {
+      console.error('Failed to fetch notifications:', err.message);
+    }
+  },
+
   addNotification: (notification) => {
     set((state) => ({
       notifications: [notification, ...state.notifications],

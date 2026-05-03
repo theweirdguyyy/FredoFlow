@@ -1,4 +1,5 @@
 import * as authService from './auth.service.js';
+import path from 'path';
 import { setAuthCookies, clearAuthCookies } from '../../utils/cookies.js';
 import { validateEmail, validatePassword, validateName } from '@fredoflow/shared';
 
@@ -120,6 +121,57 @@ export async function getMe(req, res, next) {
       success: true,
       data: { user },
     });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * PATCH /api/v1/auth/me
+ */
+export async function updateProfile(req, res, next) {
+  try {
+    const { name } = req.body;
+    if (!name || !name.trim()) {
+      return res.status(400).json({ success: false, error: 'Name is required', code: 'VALIDATION_ERROR' });
+    }
+    const user = await authService.updateProfile(req.user.id, { name: name.trim() });
+    res.status(200).json({ success: true, data: { user }, message: 'Profile updated successfully' });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * POST /api/v1/auth/me/avatar
+ */
+export async function updateAvatar(req, res, next) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: 'No file uploaded', code: 'VALIDATION_ERROR' });
+    }
+    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+    const user = await authService.updateAvatar(req.user.id, avatarUrl);
+    res.status(200).json({ success: true, data: { user }, message: 'Avatar updated successfully' });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * POST /api/v1/auth/me/password
+ */
+export async function changePassword(req, res, next) {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, error: 'Current and new passwords are required', code: 'VALIDATION_ERROR' });
+    }
+    if (newPassword.length < 8) {
+      return res.status(400).json({ success: false, error: 'New password must be at least 8 characters', code: 'VALIDATION_ERROR' });
+    }
+    await authService.changePassword(req.user.id, { currentPassword, newPassword });
+    res.status(200).json({ success: true, data: null, message: 'Password changed successfully' });
   } catch (error) {
     next(error);
   }

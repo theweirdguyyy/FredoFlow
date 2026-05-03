@@ -14,11 +14,21 @@ export const useWorkspaceStore = create((set, get) => ({
   setWorkspaces: (workspaces) => set({ workspaces }),
   setCurrentWorkspace: (workspace) => set({ currentWorkspace: workspace }),
 
-  fetchWorkspaces: async () => {
+  fetchWorkspaces: async (preferId) => {
     try {
       const res = await api.get('/workspaces');
-      set({ workspaces: res.data.data.workspaces });
-      return res.data.data.workspaces;
+      const fetchedWorkspaces = res.data.data.workspaces || [];
+      
+      let current = get().currentWorkspace;
+      if (preferId) {
+        current = fetchedWorkspaces.find(w => w.id === preferId) || current;
+      }
+      
+      set({ 
+        workspaces: fetchedWorkspaces, 
+        currentWorkspace: current || fetchedWorkspaces[0] || null 
+      });
+      return fetchedWorkspaces;
     } catch (err) {
       console.error('Failed to fetch workspaces:', err.message);
       return [];
@@ -27,13 +37,20 @@ export const useWorkspaceStore = create((set, get) => ({
 
   fetchMembers: async (workspaceId) => {
     try {
-      const res = await api.get(`/workspaces/${workspaceId}/members`);
-      // Assuming members are nested in the response
-      set({ members: res.data.data.members || [] });
+      const res = await api.get(`/workspaces/${workspaceId}`);
+      set({ members: res.data.data.workspace.members || [] });
     } catch (err) {
       console.error('Failed to fetch members:', err.message);
     }
   },
 
   setOnlineUsers: (userIds) => set({ onlineUserIds: userIds }),
+
+  setCurrentWorkspaceById: (id) => {
+    const { workspaces } = get();
+    const workspace = workspaces.find(w => w.id === id);
+    if (workspace) {
+      set({ currentWorkspace: workspace });
+    }
+  }
 }));
