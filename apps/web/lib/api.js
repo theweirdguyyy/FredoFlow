@@ -1,9 +1,10 @@
 import axios from 'axios';
 
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL
-  ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1`
-  : 'http://localhost:5000/api/v1';
+// Use relative URL — proxied through Next.js to backend
+// This means cookies are set on the SAME domain as the frontend
+const BASE_URL = typeof window !== 'undefined'
+  ? '/api/v1'  // Browser — use relative (same domain via Next.js rewrite)
+  : `${process.env.NEXT_PUBLIC_API_URL}/api/v1`; // Server — use absolute
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -40,11 +41,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await axios.post(
-          `${BASE_URL}/auth/refresh`,
-          {},
-          { withCredentials: true }
-        );
+        await axios.post('/api/v1/auth/refresh', {}, { withCredentials: true });
         processQueue(null);
         return api(originalRequest);
       } catch (refreshError) {
